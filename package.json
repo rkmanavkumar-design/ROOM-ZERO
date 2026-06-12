@@ -1,0 +1,17 @@
+{
+  "name": "roomzero-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "dev": "concurrently --kill-others \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
+    "build:all": "npm run build --workspace=backend && npm run build --workspace=frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
