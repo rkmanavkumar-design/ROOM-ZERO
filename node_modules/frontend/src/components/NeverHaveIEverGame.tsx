@@ -2,13 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HelpCircle, LogOut, CheckCircle, ArrowRight, UserCheck, MessageCircle, RefreshCw } from 'lucide-react';
+import { HelpCircle, LogOut, ArrowRight, MessageCircle } from 'lucide-react';
 import { Socket } from 'socket.io-client';
 import { NhieSession, User } from '@/lib/types';
 
 interface NeverHaveIEverGameProps {
   socket: Socket | null;
-  roomId: string;
   userId: string;
   session: NhieSession | null;
   users: Record<string, User>;
@@ -17,7 +16,6 @@ interface NeverHaveIEverGameProps {
 
 export default function NeverHaveIEverGame({
   socket,
-  roomId,
   userId,
   session,
   users,

@@ -20,7 +20,23 @@ export default function ThemeWrapper({ theme, children }: ThemeWrapperProps) {
     if (!ctx) return;
 
     let animationFrameId: number;
-    let particles: any[] = [];
+    
+    interface ParticleInstance {
+      x: number;
+      y: number;
+      size: number;
+      speedX: number;
+      speedY: number;
+      color: string;
+      opacity: number;
+      angle: number;
+      spin: number;
+      reset: () => void;
+      update: () => void;
+      draw: () => void;
+    }
+    
+    let particles: ParticleInstance[] = [];
     const maxParticles = 60;
 
     const resizeCanvas = () => {
