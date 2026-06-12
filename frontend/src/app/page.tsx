@@ -8,7 +8,7 @@ import ThemeWrapper from '@/components/ThemeWrapper';
 
 export default function LobbyPage() {
   const router = useRouter();
-  const { socket, connected } = useSocket();
+  const { socket, connected, connectionStatus, connectionError } = useSocket();
 
   const [nickname, setNickname] = useState('');
   const [roomCode, setRoomCode] = useState('');
@@ -60,7 +60,7 @@ export default function LobbyPage() {
       return;
     }
     if (!connected || !socket) {
-      setErrorMsg('Connecting...');
+      setErrorMsg(connectionError || 'Still connecting to realtime server. Please wait a moment.');
       return;
     }
 
@@ -105,12 +105,36 @@ export default function LobbyPage() {
           {/* Connection Status */}
           <div className="flex justify-center">
             <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium ${
-              connected ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20' : 'text-amber-400 bg-amber-500/10 border border-amber-500/20'
+              connected
+                ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20'
+                : connectionStatus === 'error'
+                  ? 'text-red-300 bg-red-500/10 border border-red-500/20'
+                  : 'text-amber-400 bg-amber-500/10 border border-amber-500/20'
             }`}>
-              <span className={`w-2 h-2 rounded-full ${connected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400 animate-ping'}`} />
-              {connected ? 'Connected' : 'Connecting...'}
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  connected
+                    ? 'bg-emerald-400 animate-pulse'
+                    : connectionStatus === 'error'
+                      ? 'bg-red-400'
+                      : 'bg-amber-400 animate-ping'
+                }`}
+              />
+              {connected
+                ? 'Connected'
+                : connectionStatus === 'reconnecting'
+                  ? 'Reconnecting...'
+                  : connectionStatus === 'error'
+                    ? 'Connection Failed'
+                    : 'Connecting...'}
             </div>
           </div>
+
+          {!connected && (
+            <p className="text-center text-xs text-gray-400 -mt-4 px-2">
+              {connectionError || 'Render free tier can take a few seconds to wake up.'}
+            </p>
+          )}
 
           {/* Tabs */}
           <div className="grid grid-cols-2 gap-3">
