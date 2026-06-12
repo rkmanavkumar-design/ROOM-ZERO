@@ -8,7 +8,6 @@ import { StoryBuilderSession } from '@/lib/types';
 
 interface StoryBuilderGameProps {
   socket: Socket | null;
-  roomId: string;
   userId: string;
   session: StoryBuilderSession | null;
   onQuit: () => void;
@@ -16,7 +15,6 @@ interface StoryBuilderGameProps {
 
 export default function StoryBuilderGame({
   socket,
-  roomId,
   userId,
   session,
   onQuit
@@ -57,7 +55,7 @@ export default function StoryBuilderGame({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `RoomZero_Story_${roomId}.txt`;
+    link.download = `RoomZero_Story_${Date.now()}.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

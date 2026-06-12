@@ -8,7 +8,6 @@ import { Message, User } from '@/lib/types';
 
 interface ChatSectionProps {
   socket: Socket | null;
-  roomId: string;
   userId: string;
   users: Record<string, User>;
   messages: Message[];
@@ -17,7 +16,6 @@ interface ChatSectionProps {
 
 export default function ChatSection({
   socket,
-  roomId,
   userId,
   users,
   messages,
@@ -140,7 +138,7 @@ export default function ChatSection({
     // Sum of both players' points
     const totalScore = Object.values(users).reduce((acc, u) => acc + u.score, 0);
     // Basic score calculation
-    let base = 50 + (messageCount * 1.5) + (totalScore * 0.5);
+    const base = 50 + (messageCount * 1.5) + (totalScore * 0.5);
     return Math.min(Math.round(base), 100);
   };
 

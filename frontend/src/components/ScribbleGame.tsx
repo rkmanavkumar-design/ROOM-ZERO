@@ -2,22 +2,34 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Pencil, Trash2, HelpCircle, LogOut, ShieldAlert, Sparkles, Timer } from 'lucide-react';
+import { Trash2, LogOut, ShieldAlert, Timer } from 'lucide-react';
 import { Socket } from 'socket.io-client';
 import { ScribbleSession, User } from '@/lib/types';
 
 interface ScribbleGameProps {
   socket: Socket | null;
-  roomId: string;
   userId: string;
   session: ScribbleSession | null;
   users: Record<string, User>;
   onQuit: () => void;
 }
 
+interface DrawingData {
+  x: number;
+  y: number;
+  color: string;
+  size: number;
+  circlesOnly: boolean;
+  prevX?: number;
+  prevY?: number;
+}
+
+interface CanvasWithPrevCoords extends HTMLCanvasElement {
+  prevCoords?: { x: number; y: number };
+}
+
 export default function ScribbleGame({
   socket,
-  roomId,
   userId,
   session,
   users,
@@ -63,7 +75,7 @@ export default function ScribbleGame({
   useEffect(() => {
     if (!socket || isDrawer) return;
 
-    const handleDrawingData = (data: any) => {
+    const handleDrawingData = (data: DrawingData) => {
       const canvas = canvasRef.current;
       const ctx = canvas?.getContext('2d');
       if (!canvas || !ctx) return;
@@ -78,7 +90,7 @@ export default function ScribbleGame({
         ctx.beginPath();
         ctx.arc(data.x, data.y, data.size, 0, Math.PI * 2);
         ctx.fill();
-      } else {
+      } else if (data.prevX !== undefined && data.prevY !== undefined) {
         // Standard path drawing
         ctx.beginPath();
         ctx.moveTo(data.prevX, data.prevY);
@@ -181,7 +193,7 @@ export default function ScribbleGame({
     }
     
     // Store coordinate reference
-    (e.currentTarget as any).prevCoords = coords;
+    (e.currentTarget as CanvasWithPrevCoords).prevCoords = coords;
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
@@ -189,7 +201,7 @@ export default function ScribbleGame({
     if (session.chaosModifier === 'one-line' && hasLiftingOccurred) return;
 
     const coords = getCoordinates(e);
-    const prevCoords = (e.currentTarget as any).prevCoords;
+    const prevCoords = (e.currentTarget as CanvasWithPrevCoords).prevCoords;
     if (!coords || !prevCoords) return;
 
     const canvas = canvasRef.current;
@@ -235,7 +247,7 @@ export default function ScribbleGame({
       ctx.restore();
     }
 
-    (e.currentTarget as any).prevCoords = coords;
+    (e.currentTarget as CanvasWithPrevCoords).prevCoords = coords;
   };
 
   const stopDrawing = () => {

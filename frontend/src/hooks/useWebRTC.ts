@@ -6,10 +6,9 @@ import { Socket } from 'socket.io-client';
 interface UseWebRTCOptions {
   socket: Socket | null;
   roomId: string;
-  userId: string;
 }
 
-export function useWebRTC({ socket, roomId, userId }: UseWebRTCOptions) {
+export function useWebRTC({ socket, roomId }: UseWebRTCOptions) {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [callStatus, setCallStatus] = useState<'idle' | 'offering' | 'receiving' | 'connecting' | 'active'>('idle');
@@ -76,7 +75,7 @@ export function useWebRTC({ socket, roomId, userId }: UseWebRTCOptions) {
 
     peerConnectionRef.current = pc;
     return pc;
-  }, [roomId, socket]);
+  }, [roomId, socket, iceServers]);
 
   // Request Call
   const startCall = useCallback(async (type: 'voice' | 'video') => {
@@ -193,8 +192,13 @@ export function useWebRTC({ socket, roomId, userId }: UseWebRTCOptions) {
       }
     });
 
+    interface WebRTCSignalData {
+      sdp?: RTCSessionDescriptionInit;
+      candidate?: RTCIceCandidateInit;
+    }
+
     // Handle SDP Offers/Answers and ICE candidates
-    socket.on('webrtc-signal-received', async (data: any) => {
+    socket.on('webrtc-signal-received', async (data: WebRTCSignalData) => {
       try {
         const pc = peerConnectionRef.current;
         if (!pc) return;

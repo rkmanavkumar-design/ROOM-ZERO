@@ -2,16 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HelpCircle, Trophy, Compass, Sparkles } from 'lucide-react';
+import { Trophy, Compass, Sparkles } from 'lucide-react';
 import { Socket } from 'socket.io-client';
-import { Room, GameType, User } from '@/lib/types';
+import { Room, GameType } from '@/lib/types';
 import ScribbleGame from './ScribbleGame';
 import StoryBuilderGame from './StoryBuilderGame';
 import NeverHaveIEverGame from './NeverHaveIEverGame';
 
 interface GameAreaProps {
   socket: Socket | null;
-  roomId: string;
   userId: string;
   roomState: Room | null;
 }
@@ -35,16 +34,14 @@ const CULTURAL_PROMPTS = [
   'If I visited your home city, what is the first place you would take me to see?'
 ];
 
-export default function GameArea({ socket, roomId, userId, roomState }: GameAreaProps) {
+export default function GameArea({ socket, userId, roomState }: GameAreaProps) {
   const [activeGame, setActiveGame] = useState<GameType | null>(null);
   const [spinning, setSpinning] = useState(false);
   const [spinDeg, setSpinDeg] = useState(0);
   const [selectedGameFromSpin, setSelectedGameFromSpin] = useState<GameType | null>(null);
   const [promptText, setPromptText] = useState('Click to draw a card!');
-  const [promptType, setPromptType] = useState<'conversation' | 'cultural' | null>(null);
 
   const usersList = roomState ? Object.values(roomState.users) : [];
-  const partner = roomState ? Object.values(roomState.users).find((u) => u.id !== userId) : null;
   const isAlone = usersList.length < 2;
 
   // React to server starting a game
@@ -93,8 +90,7 @@ export default function GameArea({ socket, roomId, userId, roomState }: GameArea
     socket.emit('select-game', randomGame);
   };
 
-  const handleDrawPrompt = (type: 'conversation' | 'cultural') => {
-    setPromptType(type);
+  const handleDrawPrompt = (type: 'conversation' | 'cultural') => {      
     const deck = type === 'conversation' ? CONVERSATION_STARTERS : CULTURAL_PROMPTS;
     let card = deck[Math.floor(Math.random() * deck.length)];
     while (card === promptText && deck.length > 1) {
@@ -298,7 +294,6 @@ export default function GameArea({ socket, roomId, userId, roomState }: GameArea
             {activeGame === 'scribble' && (
               <ScribbleGame
                 socket={socket}
-                roomId={roomId}
                 userId={userId}
                 session={roomState?.scribble || null}
                 users={roomState?.users || {}}
@@ -308,7 +303,6 @@ export default function GameArea({ socket, roomId, userId, roomState }: GameArea
             {activeGame === 'story' && (
               <StoryBuilderGame
                 socket={socket}
-                roomId={roomId}
                 userId={userId}
                 session={roomState?.story || null}
                 onQuit={handleQuitGame}
@@ -317,7 +311,6 @@ export default function GameArea({ socket, roomId, userId, roomState }: GameArea
             {activeGame === 'nhie' && (
               <NeverHaveIEverGame
                 socket={socket}
-                roomId={roomId}
                 userId={userId}
                 session={roomState?.nhie || null}
                 users={roomState?.users || {}}
