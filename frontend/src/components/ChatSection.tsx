@@ -111,9 +111,9 @@ export default function ChatSection({
     if (revealedImages[msgId]) return; // Already revealed or expired
 
     setRevealedImages((prev) => ({ ...prev, [msgId]: true }));
-    setImageTimers((prev) => ({ ...prev, [msgId]: 5 }));
+    setImageTimers((prev) => ({ ...prev, [msgId]: 3 }));
 
-    // Start 5-second countdown
+    // Start 3-second countdown
     const interval = setInterval(() => {
       setImageTimers((prev) => {
         const currentVal = prev[msgId];
